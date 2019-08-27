@@ -1,0 +1,101 @@
+<html>
+  <head>
+  <link rel="stylesheet" type="text/css" href="//cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css" />
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script type="text/javascript" src="//cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+    <script type="text/javascript">
+      $(document).ready(function(){
+        $('#stockTable').dataTable();
+      });
+    </script>
+  </head>
+  <body>
+  <h3>{{errMsg | lowercase }}</h3>
+
+  <table id="stockTable" align="center" class="z-depth-1 table" ng-controller="myController" ng-app="app">
+    <thead>
+      <th align="center">
+          <a href="#" ng-click="sortType='symbol'; reverseSort = !reverseSort">
+              <!-- <span ng-show="sortType == 'symbol' && !sortReverse" class="fa fa-caret-down"></span>
+              <span ng-show="sortType == 'symbol' && sortReverse" class="fa fa-caret-up"></span> -->
+            Symbol 
+          </a>
+      </th>
+
+      <th align="center">Company Name</th>
+
+      <th align="center">Price</th>
+
+      <th class="text-center">Change</th>
+
+      <th align="center">Change Percent</th>
+ 
+    </thead>
+
+    <tr  *ngFor="let stockVar of stockVars"  ng-repeat=" stockVar in stockVars|orderBy:orderByField:reverseSort" let id = isMarketUp(stockVar)> 
+      <td align="center">
+        {{ stockVar.symbol }}
+      </td>
+
+      <td>
+        <a href="{{ stockVar.url }}" target="_blank">{{ stockVar.companyName }}</a>
+      </td>
+
+      <td align="center">
+        {{ stockVar.price.toFixed(2) }}
+      </td>
+
+      <td align="center">
+          <ng-template *ngIf="isNoChange(stockVar);then caseFlat else caseMore" ></ng-template>
+              <ng-template #caseFlat>
+                  <p >{{ (stockVar.price - stockVar.previousClose).toFixed(2) }}</p>
+              </ng-template>
+   
+           <ng-template #caseMore>
+              <ng-template *ngIf="isDown(stockVar);then caseDown else caseUp"></ng-template>
+              <ng-template #caseDown id="negativeValues">
+                 <p id="negativeValues"> {{ (stockVar.price - stockVar.previousClose).toFixed(2) }}</p>
+              </ng-template>
+              <ng-template #caseUp >
+                  <p id="positiveValues">+{{ (stockVar.price - stockVar.previousClose).toFixed(2) }}</p>
+              </ng-template>
+           </ng-template>
+
+      </td>
+
+
+      <td align="center">
+          <ng-template *ngIf="isNoChange(stockVar);then percentFlat else percentMore" ></ng-template>
+              <ng-template #percentFlat>
+                  <p >{{ ((stockVar.price - stockVar.previousClose)/stockVar.previousClose*100.00).toFixed(2) }}%</p>
+              </ng-template>
+   
+           <ng-template #percentMore>
+              <ng-template *ngIf="isDown(stockVar);then percentDown else percentUp"></ng-template>
+              <ng-template #percentDown id="negativeValues">
+                 <p id="negativeValues"> {{ ((stockVar.price - stockVar.previousClose)/stockVar.previousClose*100.00).toFixed(2) }}%</p>
+              </ng-template>
+              <ng-template #percentUp >
+                  <p id="positiveValues">+{{ ((stockVar.price - stockVar.previousClose)/stockVar.previousClose*100.00).toFixed(2) }}%</p>
+              </ng-template>
+           </ng-template>
+
+      </td>
+
+      </tr>
+  
+    </table>
+
+    <script>
+        var app = angular.module('app', []);
+        app.controller("myController", function($scope){
+
+    $scope.data = stockVars;
+
+    $scope.orderByField = 'symbol';
+    $scope.reverseSort = false;
+});
+    </script>
+
+    </body>
+  </html>
